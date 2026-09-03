@@ -17,6 +17,7 @@
     "node": ">=22.13.0"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.47",
     "@mastra/core": "1.63.2",
     "@mastra/duckdb": "1.6.3",
     "@mastra/libsql": "1.22.2",

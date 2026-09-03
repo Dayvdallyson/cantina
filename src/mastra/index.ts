@@ -10,12 +10,13 @@ import {
 } from '@mastra/observability';
 import { agent } from './agents/agent';
 import { startScheduleTool, stopScheduleTool } from './tools/schedule-tools';
+import { cantinaAgent } from "./agents/cantina";
 
 export const mastra = new Mastra({
   bundler: {
     externals: ['@duckdb/node-bindings'],
   },
-  agents: { agent },
+  agents: { agent, cantinaAgent },
   tools: { startScheduleTool, stopScheduleTool },
   storage: new MastraCompositeStore({
     id: 'composite-storage',
