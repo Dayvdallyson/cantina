@@ -1,58 +1,62 @@
-# cantina
+# Cantina
 
-Welcome to your new [Mastra](https://mastra.ai) project! We're excited to see what you build.
+A Star Wars lore AI agent built with [Mastra](https://mastra.ai). Cantina answers
+questions about characters, their homeworlds, and starships by orchestrating tools
+over the [SWAPI](https://swapi.info) dataset — never inventing facts.
 
-This starter provides you with a general-purpose Mastra agent that can research current information, manage multi-step tasks, work with local files, run approved shell commands, and create recurring schedules.
+This is a learning project focused on the concepts one step beyond a single-fetch
+agent: **tool orchestration** (the agent decides which tool to call, and chains
+multiple calls on its own) and **linked-data resolution** (following resource URLs
+to enrich responses).
 
-## Features
+## Stack
 
-- A project-level `workspace/` for files and command execution
-- Approval gates for file changes, deletions, and shell commands
-- Conversation memory, generated thread titles, and task tracking
-- Built-in web search and direct web page fetching
-- Recurring schedules that persist across restarts
-- Local libSQL storage and DuckDB observability, with optional Turso storage
-- A bundled Mastra skill that helps coding agents use current Mastra APIs
+- **Mastra** (v1) — agent framework and Studio
+- **Claude Haiku 4.5** via `@ai-sdk/anthropic`
+- **SWAPI** (`swapi.info`) — a fast, GET-only Star Wars API mirror
+- **TypeScript** + **Zod** for tool schemas
+
+## Architecture
+
+The project follows a light layered structure to keep external concerns isolated
+from the agent logic:
+
+
+- **Domain** separates the raw API JSON from the clean model the agent receives,
+  so the rest of the code never depends on SWAPI's exact format.
+- **Infrastructure** exposes a `SwapiClient` Singleton. Since `swapi.info` has no
+  server-side search, collections are fetched once, cached in memory, and filtered
+  locally. A generic `fetchByUrl` primitive powers linked-data resolution.
+
+## Tools
+
+| Tool            | What it does                                                        |
+| --------------- | ------------------------------------------------------------------- |
+| `get-character` | Finds a character by name and resolves their homeworld URL to a name |
+
+_Planned: `get-starships` (fan-out with `Promise.all` to resolve all piloted ships)
+and `get-planet`._
 
 ## Get started
 
-Set your `ANTHROPIC_API_KEY` in `.env` or in your environment, then run:
+Set your `ANTHROPIC_API_KEY` in `.env`, then run:
 
 ```shell
 pnpm run dev
 ```
 
-Open [http://localhost:4111](http://localhost:4111) in your browser to access [Mastra Studio](https://mastra.ai/docs/studio/overview).
+Open [http://localhost:4111](http://localhost:4111) to access Mastra Studio, select
+the **Cantina** agent, and try:
 
-Select **Agent** in Mastra Studio and try one of these prompts:
-
-- `Get the weather forecast for Austin this weekend.`
-- `Create a landing page for a Japanese sakura festival.`
-- `Check the SPCX stock price now, then check it every minute.`
-
-The agent asks for approval before it changes files or runs commands. When it creates a schedule, it returns an ID that you can use to pause the schedule.
-
-## Workspace safety
-
-The local filesystem tools stay inside the project-level `workspace/` directory. Shell commands start in that directory, but `LocalSandbox` does not provide operating-system isolation by default. Review command approvals carefully, and do not expose this template through an unauthenticated public server.
+- `Tell me about Leia` — watch the tool resolve her homeworld to "Alderaan"
+- `Who is taller, Leia or Luke?` — the agent calls the tool twice on its own
 
 ## Storage
 
-The default `file:./mastra.db` database stores agent memory, tasks, and schedules locally. To use Turso, set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in `.env`.
-
-Recurring schedules continue to use model tokens until you pause them. Ask the agent to pause a schedule with the ID returned by `start_schedule`.
-
-## Making it yours
-
-- Edit `src/mastra/agents/agent.ts` to change the model, instructions, memory, workspace, or approval policy.
-- Edit `src/mastra/tools/` to customize scheduling.
-- Edit `src/mastra/index.ts` to change storage and observability.
-- Add files or reusable skills under `workspace/` for the agent to use.
+Local libSQL (`file:./mastra.db`) stores agent memory, carried over from the Mastra
+starter. It isn't central to this project's learning goals.
 
 ## Learn more
 
-To learn more about Mastra, visit our [documentation](https://mastra.ai/docs/). If you're new to AI agents, check out our [course](https://mastra.ai/learn) and [YouTube videos](https://youtube.com/@mastra-ai). You can also join our [Discord](https://discord.gg/BTYqqHKUrf) community to get help and share your projects.
-
-## Deploy to the Mastra platform
-
-The [Mastra platform](https://projects.mastra.ai) provides two products for deploying and managing AI applications built with the Mastra framework. Learn more in the [Mastra platform documentation](https://mastra.ai/docs/mastra-platform/overview).
+- [Mastra documentation](https://mastra.ai/docs/)
+- [SWAPI (swapi.info)](https://swapi.info)
