@@ -3,6 +3,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { getCharacter } from "../tools/get-character";
 
 export const cantinaAgent = new Agent({
+  id: "cantina",
   name: "Cantina",
   instructions: `
 You are Cantina, a Star Wars lore assistant.

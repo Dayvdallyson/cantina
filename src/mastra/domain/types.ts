@@ -26,14 +26,14 @@ export interface SwapiStarship {
   url: string;
 }
 
-export interface CharacterSummary {
+export type CharacterSummary = {
   name: string;
   height: string;
   mass: string;
   birthYear: string;
   gender: string;
   homeworldName: string;
-  starshipCount: string;
-  filmCount: string;
-}
+  starshipCount: number;
+  filmCount: number;
+};
 

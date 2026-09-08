@@ -3,6 +3,8 @@ import { z } from "zod";
 import { SwapiClient } from "../infrastructure/swapi-client"
 import type { CharacterSummary, SwapiPlanet } from "../domain/types"
 
+const client = SwapiClient.getInstance();
+
 export const getCharacter = createTool({
   id: "get-character",
   description:
@@ -14,32 +16,28 @@ export const getCharacter = createTool({
     name: z.string(),
     height: z.string(),
     mass: z.string(),
-    birthYear: z.string(),
+    birth_year: z.string(),
     gender: z.string(),
-    homeworldName: z.string(),
+    homeworld: z.string(),
     starshipCount: z.number(),
     filmCount: z.number(),
   }),
-  execute: async ({ inputData }) => {
-    const client = SwapiClient.getInstance();
-    const person = await client.findPersonByName(context.name);
+ execute: async ({ name }) => {
+  const person = await client.findPersonByName(name);
 
-    if (!person) {
-      throw new Error(`Character not found: ${context.name}`);
-    }
-
-    const homeworld = await client.fetchByUrl<SwapiPlanet>(person.homeworld);
-
-    const summary: CharacterSummary = {
-      name: person.name,
-      height: person.height,
-      mass: person.mass,
-      birthYear: person.birth_year,
-      gender: person.gender,
-      homeworldName: homeworld.name,
-      starshipCount: person.starships.length,
-      filmCount: person.films.length,
-    };
-    return summary;
+  if (!person) {
+    throw new Error(`Character not found: ${name}`);
   }
+
+  return {
+    name: person.name,
+    height: person.height,
+    mass: person.mass,
+    birth_year: person.birth_year,
+    gender: person.gender,
+    homeworld: person.homeworld,
+    starshipCount: person.starships.length,
+    filmCount: person.films.length,
+  };
+},
 })
